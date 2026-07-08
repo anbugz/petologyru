@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Политика конфиденциальности — Душа в душу</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1026; --bg-panel:#151832;
+    --gold:#d4af6a; --gold-soft:#ecd9ab;
+    --cream:#f4efe4; --muted:#a8a4c8; --muted-dim:#716e94;
+    --line:rgba(212,175,106,0.22); --line-soft:rgba(244,239,228,0.08);
+    --serif:'Playfair Display', Georgia, serif; --sans:'Manrope', -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--cream); font-family:var(--sans); line-height:1.7;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:60px 28px 100px;}
+  a{color:var(--gold-soft);}
+  .back{display:inline-block; margin-bottom:40px; color:var(--muted); text-decoration:none; font-size:0.92rem;}
+  .back:hover{color:var(--gold-soft);}
+  h1{font-family:var(--serif); font-weight:600; font-size:clamp(1.8rem,3.5vw,2.4rem); margin-bottom:12px;}
+  .updated{color:var(--muted-dim); font-size:0.88rem; margin-bottom:44px;}
+  h2{font-family:var(--serif); font-weight:600; font-size:1.25rem; margin:38px 0 14px; color:var(--gold-soft);}
+  p{color:var(--muted); margin-bottom:14px; font-size:0.98rem;}
+  ul{color:var(--muted); margin:0 0 14px 20px; font-size:0.98rem;}
+  li{margin-bottom:6px;}
+  hr{border:none; border-top:1px solid var(--line-soft); margin:48px 0;}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=110518402', 'ym');
+    ym(110518402, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/110518402" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← На главную</a>
+  <h1>Политика конфиденциальности</h1>
+  <p class="updated">Последнее обновление: 1 июля 2026</p>
+
+  <p>Бот «Душа в душу» (@SoulPetBot) уважает конфиденциальность пользователей. Этот документ описывает, какие данные мы собираем и как их используем.</p>
+
+  <h2>Какие данные мы собираем</h2>
+  <ul>
+    <li>Дата, время и место рождения питомца — хранятся в базе данных для расчёта натальной карты и не передаются третьим лицам.</li>
+    <li>Telegram ID пользователя — используется в анонимизированном виде (необратимое хеширование) для связи данных с аккаунтом внутри бота.</li>
+    <li>История запросов к боту (натальные карты, таро-расклады, гороскопы) — хранится для отображения истории обращений в самом боте.</li>
+    <li>Данные о платежах через Telegram Stars — обрабатываются самой платформой Telegram; мы получаем только факт и сумму оплаты для активации услуги.</li>
+  </ul>
+
+  <h2>Данные второго участника при расчёте совместимости</h2>
+  <p>Если вы запрашиваете совместимость питомца с человеком (например, с собой или членом семьи), дата, время и место рождения этого человека используются один раз — только для выполнения расчёта — и не сохраняются в базе данных после получения результата. В истории обращений остаётся только факт запроса совместимости, без натальных данных человека.</p>
+
+  <h2>Как мы используем данные</h2>
+  <p>Собранные данные используются исключительно для работы функций бота: расчёта астрологических раскладов, ведения истории обращений, персонализации ответов на основе ранее указанных фактов о питомце.</p>
+  <p>Мы не передаём данные третьим лицам, не используем их в рекламных целях и не продаём.</p>
+
+  <h2>Хранение и удаление данных</h2>
+  <p>Данные о питомце хранятся до тех пор, пока пользователь не запросит их удаление. Для удаления всех данных, связанных с вашим аккаунтом, напишите об этом в бот — данные будут удалены безвозвратно.</p>
+
+  <h2>Обработка через внешние сервисы</h2>
+  <p>Для генерации текстовых разборов бот использует сторонний AI-сервис (DeepSeek). Запросы к нему не содержат вашего Telegram ID или иных идентифицирующих данных — только обезличенные данные, необходимые для расчёта (даты, знаки зодиака, вопросы пользователя).</p>
+
+  <h2>Контакты</h2>
+  <p>По вопросам, связанным с данными и конфиденциальностью, обращайтесь к <a href="https://t.me/TarologySoul">@TarologySoul</a>.</p>
+
+  <hr>
+  <p style="font-size:0.85rem; color:var(--muted-dim);">© 2026 Душа в душу</p>
+</div>
+</body>
+</html>
