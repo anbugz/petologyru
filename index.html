@@ -290,6 +290,7 @@
     font-family:var(--serif); font-weight:600; font-size:1.35rem;
     color:var(--cream); letter-spacing:0.01em;
     display:flex; align-items:center; gap:10px;
+    text-decoration:none; cursor:pointer;
   }
   .logo .moon{color:var(--gold); font-size:1.1rem;}
   nav.site-nav{display:flex; gap:32px; align-items:center;}
@@ -553,6 +554,25 @@
   footer a{color:var(--muted); text-decoration:none;}
   footer a:hover{color:var(--gold-soft);}
   .footer-links{display:flex; gap:22px; flex-wrap:wrap;}
+
+  /* ---------- back to top ---------- */
+  .to-top{
+    position:fixed; right:22px; bottom:22px; z-index:60;
+    width:46px; height:46px; border-radius:50%;
+    background:linear-gradient(135deg, var(--gold), #b98f4a);
+    color:#1a1408; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 22px -6px rgba(212,175,106,0.6);
+    opacity:0; visibility:hidden; transform:translateY(12px);
+    transition:opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  }
+  .to-top.visible{opacity:1; visibility:visible; transform:translateY(0);}
+  .to-top:hover{transform:translateY(-3px);}
+  .to-top svg{width:20px; height:20px;}
+  @media (prefers-reduced-motion: reduce){
+    .to-top{transition:opacity 0.15s ease;}
+    .to-top:hover{transform:translateY(0);}
+  }
 </style>
 </head>
 <body>
@@ -561,7 +581,7 @@
 
 <header class="site">
   <div class="wrap header-inner" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
-    <div class="logo"><span class="moon">☾</span> Душа в душу</div>
+    <a class="logo" href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;"><span class="moon">☾</span> Душа в душу</a>
     <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
     <label for="nav-toggle" class="nav-burger" aria-label="Открыть меню">
       <span></span><span></span><span></span>
@@ -787,6 +807,12 @@
   </div>
 </section>
 
+<button class="to-top" id="toTop" aria-label="Наверх" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
 <footer>
   <div class="wrap">
     <div>© 2026 Душа в душу</div>
@@ -813,6 +839,18 @@
       if(reduce){ s.style.animation='none'; s.style.opacity = 0.25+Math.random()*0.3; }
       container.appendChild(s);
     }
+  })();
+
+  // back to top button visibility
+  (function(){
+    var btn = document.getElementById('toTop');
+    if(!btn) return;
+    function toggle(){
+      if(window.scrollY > 480){ btn.classList.add('visible'); }
+      else { btn.classList.remove('visible'); }
+    }
+    window.addEventListener('scroll', toggle, {passive:true});
+    toggle();
   })();
 </script>
 
