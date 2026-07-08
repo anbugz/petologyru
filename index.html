@@ -264,6 +264,10 @@
   section, header, footer{position:relative; z-index:1;}
 
   .wrap{max-width:1100px; margin:0 auto; padding:0 28px;}
+  @media (max-width:400px){
+    .wrap{padding:0 18px;}
+    .logo{font-size:1.15rem;}
+  }
 
   /* ---------- header ---------- */
   header.site{
@@ -282,6 +286,41 @@
     transition:color 0.2s;
   }
   nav.site-nav a:hover{color:var(--gold-soft);}
+  .nav-toggle-checkbox{display:none;}
+  .nav-burger{
+    display:none; flex-direction:column; justify-content:center; gap:5px;
+    width:36px; height:36px; cursor:pointer; border:1px solid var(--line);
+    border-radius:10px; padding:9px;
+  }
+  .nav-burger span{width:100%; height:2px; background:var(--cream); border-radius:2px; transition:transform 0.2s ease, opacity 0.2s ease;}
+  @media (max-width:760px){
+    header.site{position:relative;}
+    .header-inner{flex-wrap:nowrap;}
+    .nav-burger{display:flex;}
+    nav.site-nav{
+      display:flex; flex-direction:column; align-items:stretch; gap:0;
+      position:absolute; top:100%; left:0; right:0;
+      background:var(--bg-panel);
+      border:1px solid var(--line); border-top:none;
+      border-radius:0 0 16px 16px;
+      max-height:0; overflow:hidden;
+      transition:max-height 0.25s ease;
+      z-index:20;
+    }
+    nav.site-nav a{
+      padding:16px 24px; width:100%;
+      border-top:1px solid var(--line-soft);
+    }
+    .nav-cta{
+      display:inline-flex !important;
+      margin:16px 24px 20px;
+      justify-content:center;
+    }
+    .nav-toggle-checkbox:checked ~ nav.site-nav{max-height:420px;}
+    .nav-toggle-checkbox:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .nav-toggle-checkbox:checked ~ .nav-burger span:nth-child(2){opacity:0;}
+    .nav-toggle-checkbox:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  }
   .btn{
     display:inline-flex; align-items:center; gap:8px;
     padding:13px 26px; border-radius:999px;
@@ -497,8 +536,12 @@
 <div class="stars" id="stars"></div>
 
 <header class="site">
-  <div class="wrap" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+  <div class="wrap header-inner" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
     <div class="logo"><span class="moon">☾</span> Душа в душу</div>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
+    <label for="nav-toggle" class="nav-burger" aria-label="Открыть меню">
+      <span></span><span></span><span></span>
+    </label>
     <nav class="site-nav">
       <a href="#features">Возможности</a>
       <a href="#how">Как это работает</a>
