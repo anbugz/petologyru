@@ -277,6 +277,15 @@
     display:flex; align-items:center; justify-content:space-between;
     padding:26px 0;
   }
+  @media (min-width:761px){
+    header.site{
+      position:sticky; top:0;
+      background:rgba(13,16,38,0.85);
+      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+      padding:18px 0;
+      border-bottom:1px solid var(--line);
+    }
+  }
   .logo{
     font-family:var(--serif); font-weight:600; font-size:1.35rem;
     color:var(--cream); letter-spacing:0.01em;
@@ -297,7 +306,13 @@
   }
   .nav-burger span{width:100%; height:2px; background:var(--cream); border-radius:2px; transition:transform 0.2s ease, opacity 0.2s ease;}
   @media (max-width:760px){
-    header.site{position:relative;}
+    header.site{
+      position:sticky; top:0;
+      background:rgba(13,16,38,0.92);
+      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+      padding:18px 0;
+      border-bottom:1px solid var(--line);
+    }
     .header-inner{flex-wrap:nowrap;}
     .nav-burger{display:flex;}
     nav.site-nav{
