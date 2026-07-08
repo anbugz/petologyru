@@ -315,9 +315,12 @@
     }
     .nav-cta{
       display:inline-flex !important;
+      width:calc(100% - 48px) !important;
+      box-sizing:border-box;
       margin:16px 24px 20px;
       justify-content:center;
       color:#1a1408 !important;
+      border-top:none;
     }
     .nav-toggle-checkbox:checked ~ nav.site-nav{max-height:600px; overflow-y:auto;}
     .nav-toggle-checkbox:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg);}
