@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f6d365"/>
+      <stop offset="100%" stop-color="#c9932e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- rounded square background -->
+  <rect x="0" y="0" width="120" height="120" rx="26" ry="26" fill="#0d1026"/>
+
+  <!-- zodiac ring -->
+  <circle cx="60" cy="60" r="42" fill="none" stroke="url(#gold)" stroke-width="3"/>
+
+  <!-- stars -->
+  <g fill="url(#gold)">
+    <circle cx="60" cy="12" r="2.4"/>
+    <circle cx="99" cy="34" r="1.8"/>
+    <circle cx="99" cy="86" r="1.8"/>
+    <circle cx="21" cy="34" r="1.8"/>
+    <circle cx="21" cy="86" r="1.8"/>
+  </g>
+
+  <!-- paw print, centered -->
+  <g fill="url(#gold)">
+    <!-- main pad -->
+    <ellipse cx="60" cy="70" rx="19" ry="15"/>
+    <!-- toes -->
+    <ellipse cx="41" cy="46" rx="7.5" ry="9.5"/>
+    <ellipse cx="56" cy="38" rx="7.5" ry="9.5"/>
+    <ellipse cx="72" cy="38" rx="7.5" ry="9.5"/>
+    <ellipse cx="87" cy="46" rx="7.5" ry="9.5"/>
+  </g>
+</svg>
