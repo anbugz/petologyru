@@ -11,7 +11,7 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
- 
+
 <!-- Open Graph -->
 <meta property="og:title" content="Душа в душу — AI-астрология и таро для питомцев">
 <meta property="og:description" content="Узнайте характер питомца по звёздам: натальная карта, таро, совместимость, гороскоп. Первый разбор бесплатно.">
@@ -20,13 +20,13 @@
 <meta property="og:image" content="https://petology.ru/paw-zodiac.jpg">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:site_name" content="Душа в душу">
- 
+
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Душа в душу — AI-астрология и таро для питомцев">
 <meta name="twitter:description" content="Узнайте характер питомца по звёздам: натальная карта, таро, совместимость, гороскоп. Первый разбор бесплатно.">
 <meta name="twitter:image" content="https://petology.ru/paw-zodiac.jpg">
- 
+
 <!-- Structured data for AI / search discoverability -->
 <script type="application/ld+json">
 {
@@ -88,7 +88,7 @@
     },
     {
       "@type": "Question",
-      "name": "У меня ещё нет питомца, бот всё равно полезен?",
+      "name": "У меня ещё нет питомца — бот всё равно полезен?",
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Да. Бот может подобрать подходящий вид и породу питомца на основе натальной карты владельца, а также предложить таро-расклад для самого владельца."
@@ -208,51 +208,89 @@
   ]
 }
 </script>
- 
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
- 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <style>
   :root{
-    --bg:#0d1026;
-    --bg-panel:#151832;
-    --bg-panel-2:#1b1e42;
+    --bg:#0a0c1e;
+    --bg-panel:#12142c;
+    --bg-panel-2:#171a38;
     --gold:#d4af6a;
     --gold-soft:#ecd9ab;
+    --gold-bright:#f3d98a;
     --cream:#f4efe4;
     --muted:#a8a4c8;
     --muted-dim:#716e94;
     --line:rgba(212,175,106,0.22);
     --line-soft:rgba(244,239,228,0.08);
-    --radius:18px;
+    --radius:20px;
     --serif:'Playfair Display', 'Georgia', serif;
     --sans:'Manrope', -apple-system, sans-serif;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   }
- 
+
   *{box-sizing:border-box; margin:0; padding:0;}
- 
   html{scroll-behavior:smooth;}
- 
+
   body{
     background:
-      radial-gradient(ellipse 900px 500px at 15% -5%, rgba(212,175,106,0.10), transparent 60%),
-      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(139,123,168,0.14), transparent 55%),
+      radial-gradient(ellipse 1000px 600px at 12% -8%, rgba(212,175,106,0.11), transparent 60%),
+      radial-gradient(ellipse 800px 600px at 105% 8%, rgba(139,123,168,0.16), transparent 55%),
+      radial-gradient(ellipse 900px 500px at 50% 110%, rgba(139,123,168,0.10), transparent 60%),
       var(--bg);
     color:var(--cream);
     font-family:var(--sans);
     line-height:1.6;
     overflow-x:hidden;
+    cursor:auto;
   }
- 
-  /* ---------- starfield ---------- */
-  .stars{
+
+  ::selection{background:rgba(212,175,106,0.35); color:var(--cream);}
+
+  /* ---------- grain ---------- */
+  .grain{
+    position:fixed; inset:-100px; z-index:2; pointer-events:none;
+    opacity:0.035; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- custom cursor ---------- */
+  .cursor-dot, .cursor-ring{
+    position:fixed; top:0; left:0; z-index:9999; pointer-events:none;
+    border-radius:50%; transform:translate(-50%,-50%);
+    will-change:transform;
+  }
+  .cursor-dot{width:6px; height:6px; background:var(--gold-bright);}
+  .cursor-ring{
+    width:34px; height:34px; border:1px solid var(--line);
+    transition:width 0.25s var(--ease-out), height 0.25s var(--ease-out), border-color 0.25s, background 0.25s;
+  }
+  .cursor-ring.hovering{
+    width:56px; height:56px; border-color:var(--gold);
+    background:rgba(212,175,106,0.08);
+  }
+  @media (hover:none), (pointer:coarse){
+    .cursor-dot, .cursor-ring{display:none;}
+  }
+
+  /* ---------- WebGL star cloud ---------- */
+  #stargl{
     position:fixed; inset:0; z-index:0; pointer-events:none;
   }
+  #stargl canvas{display:block;}
+
+  /* ---------- starfield ---------- */
+  .stars{position:fixed; inset:0; z-index:0; pointer-events:none;}
   .star{
     position:absolute; width:2px; height:2px; border-radius:50%;
-    background:var(--gold-soft);
-    opacity:0.5;
+    background:var(--gold-soft); opacity:0.5;
     animation:twinkle 5s ease-in-out infinite;
   }
   @keyframes twinkle{
@@ -262,17 +300,25 @@
   @media (prefers-reduced-motion: reduce){
     .star{animation:none; opacity:0.4;}
     html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
   }
- 
+
   section, header, footer{position:relative; z-index:1;}
   header.site{z-index:50;}
- 
+
   .wrap{max-width:1100px; margin:0 auto; padding:0 28px;}
   @media (max-width:400px){
     .wrap{padding:0 18px;}
     .logo{font-size:1.15rem;}
   }
- 
+
+  /* ---------- reveal-on-scroll ---------- */
+  .reveal{opacity:0; transform:translateY(28px);}
+  .reveal.is-visible{
+    animation:reveal-in 0.7s var(--ease-out) forwards;
+  }
+  @keyframes reveal-in{ to{opacity:1; transform:translateY(0);} }
+
   /* ---------- header ---------- */
   header.site{
     display:flex; align-items:center; justify-content:space-between;
@@ -281,10 +327,16 @@
   @media (min-width:761px){
     header.site{
       position:sticky; top:0;
-      background:rgba(13,16,38,0.85);
-      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+      background:rgba(10,12,30,0.72);
+      backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%);
       padding:18px 0;
+      border-bottom:1px solid var(--line-soft);
+      transition:padding 0.3s var(--ease-out), border-color 0.3s, background 0.3s;
+    }
+    header.site.scrolled{
+      padding:12px 0;
       border-bottom:1px solid var(--line);
+      background:rgba(10,12,30,0.92);
     }
   }
   .logo{
@@ -293,13 +345,19 @@
     display:flex; align-items:center; gap:10px;
     text-decoration:none; cursor:pointer;
   }
-  .logo .moon{color:var(--gold); font-size:1.1rem;}
+  .logo .moon{color:var(--gold); font-size:1.1rem; display:inline-block; transition:transform 0.6s var(--ease-in-out);}
+  .logo:hover .moon{transform:rotate(-25deg);}
   nav.site-nav{display:flex; gap:32px; align-items:center;}
   nav.site-nav a{
     color:var(--muted); text-decoration:none; font-size:0.92rem; font-weight:600;
-    transition:color 0.2s;
+    position:relative; padding-bottom:2px;
   }
-  nav.site-nav a:hover{color:var(--gold-soft);}
+  nav.site-nav a:not(.btn)::after{
+    content:''; position:absolute; left:0; bottom:-2px; width:0; height:1px;
+    background:var(--gold-soft); transition:width 0.25s var(--ease-out);
+  }
+  nav.site-nav a:not(.btn):hover{color:var(--gold-soft);}
+  nav.site-nav a:not(.btn):hover::after{width:100%;}
   .nav-toggle-checkbox{display:none;}
   .nav-burger{
     display:none; flex-direction:column; justify-content:center; gap:5px;
@@ -310,7 +368,7 @@
   @media (max-width:760px){
     header.site{
       position:sticky; top:0;
-      background:rgba(13,16,38,0.92);
+      background:rgba(10,12,30,0.92);
       backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
       padding:18px 0;
       border-bottom:1px solid var(--line);
@@ -324,13 +382,14 @@
       border:1px solid var(--line); border-top:none;
       border-radius:0 0 16px 16px;
       max-height:0; overflow:hidden;
-      transition:max-height 0.25s ease;
+      transition:max-height 0.3s var(--ease-in-out);
       z-index:20;
     }
     nav.site-nav a{
       padding:16px 24px; width:100%;
       border-top:1px solid var(--line-soft);
     }
+    nav.site-nav a::after{display:none;}
     .nav-cta{
       display:inline-flex !important;
       width:calc(100% - 48px) !important;
@@ -345,31 +404,42 @@
     .nav-toggle-checkbox:checked ~ .nav-burger span:nth-child(2){opacity:0;}
     .nav-toggle-checkbox:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
   }
+
+  /* ---------- buttons ---------- */
   .btn{
     display:inline-flex; align-items:center; gap:8px;
     padding:13px 26px; border-radius:999px;
     font-weight:700; font-size:0.92rem; text-decoration:none;
-    transition:transform 0.18s ease, box-shadow 0.18s ease;
+    transition:transform 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out);
     border:1px solid transparent;
+    will-change:transform;
   }
+  .btn:active{transform:scale(0.96) !important;}
   .btn-primary{
-    background:linear-gradient(135deg, var(--gold), #b98f4a);
+    background:linear-gradient(135deg, var(--gold-bright), #b98f4a);
     color:#1a1408;
     box-shadow:0 8px 24px -8px rgba(212,175,106,0.55);
+    position:relative; overflow:hidden;
   }
-  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 12px 28px -8px rgba(212,175,106,0.7);}
+  .btn-primary::before{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%);
+    transform:translateX(-120%);
+  }
+  .btn-primary:hover::before{transform:translateX(120%); transition:transform 0.7s var(--ease-in-out);}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 14px 32px -8px rgba(212,175,106,0.75);}
   .btn-ghost{
     border-color:var(--line);
     color:var(--cream);
     background:rgba(244,239,228,0.03);
   }
-  .btn-ghost:hover{border-color:var(--gold); color:var(--gold-soft);}
+  .btn-ghost:hover{border-color:var(--gold); color:var(--gold-soft); transform:translateY(-2px);}
   .nav-cta{display:none; color:#1a1408 !important;}
   @media (min-width: 720px){ .nav-cta{display:inline-flex;} }
- 
+
   /* ---------- hero ---------- */
   .hero{
-    padding:64px 0 40px;
+    padding:72px 0 40px;
     display:grid; grid-template-columns:1.1fr 0.9fr; gap:32px; align-items:center;
     max-width:940px; margin:0 auto;
   }
@@ -386,35 +456,73 @@
   }
   h1{
     font-family:var(--serif); font-weight:600;
-    font-size:clamp(2.3rem, 4.6vw, 3.5rem);
+    font-size:clamp(2.3rem, 4.6vw, 3.6rem);
     line-height:1.12; letter-spacing:-0.01em;
     color:var(--cream); margin-bottom:22px;
   }
   h1 em{font-style:italic; color:var(--gold-soft);}
+  h1 .word{display:inline-block; opacity:0; transform:translateY(100%) rotate(2deg); animation:word-in 0.8s var(--ease-out) forwards;}
+  @keyframes word-in{ to{opacity:1; transform:translateY(0) rotate(0);} }
   .hero p.lead{
     font-size:1.12rem; color:var(--muted); max-width:480px; margin-bottom:34px;
+    opacity:0; animation:reveal-in 0.7s var(--ease-out) 0.5s forwards;
   }
   @media (max-width:860px){ .hero p.lead{margin-left:auto; margin-right:auto;} }
-  .hero-actions{display:flex; gap:16px; flex-wrap:wrap;}
+  .hero-actions{display:flex; gap:16px; flex-wrap:wrap; opacity:0; animation:reveal-in 0.7s var(--ease-out) 0.65s forwards;}
   @media (max-width:860px){ .hero-actions{justify-content:center;} }
- 
-  .hero-art{
-    position:relative;
-    display:flex; align-items:center; justify-content:flex-start;
-  }
+
+  .hero-art{position:relative; display:flex; align-items:center; justify-content:flex-start; width:100%; margin:0;}
   @media (max-width:860px){ .hero-art{justify-content:center;} }
   .hero-art-frame{
-    position:relative; width:100%; max-width:380px; aspect-ratio:1/1;
-    border-radius:28px; overflow:hidden;
-    background:radial-gradient(circle at 50% 40%, #16193a, #0a0c1c);
+    position:relative; width:100%; max-width:400px; aspect-ratio:1/1;
+  }
+  @keyframes spin-slow{ to{transform:rotate(360deg);} }
+  .hero-art-core{
+    position:absolute; inset:56px; border-radius:50%; overflow:hidden;
+    background:transparent;
     border:1px solid var(--line);
-    box-shadow:0 30px 70px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,106,0.06) inset;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,0.65), 0 0 0 1px rgba(212,175,106,0.08) inset, 0 0 60px -10px rgba(212,175,106,0.25);
+    animation:float-y 6s ease-in-out infinite;
   }
-  .hero-art-frame img{
-    width:100%; height:100%; object-fit:cover; display:block;
-    opacity:0.96;
+  @keyframes float-y{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+  .hero-art-core img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block;
   }
- 
+  /* Separate transparent-PNG assets now — no masking or cloning needed at all.
+     The ring PNG already has a genuine transparent hole in the middle, and the
+     paw PNG is a standalone icon with a transparent background, so they simply
+     stack as two independent layers. */
+  .hero-art-core img.paw-center{
+    z-index:3; width:34%; height:34%; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5));
+  }
+  /* Standalone Telegram paper-plane icon, fixed at the top of the medallion, never rotates. */
+  .hero-art-core svg.paw-plane{
+    position:absolute; z-index:4; width:9%; height:9%; left:51%; top:6%;
+    transform:translate(-50%,-50%);
+    fill:var(--gold-bright);
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+  }
+  /* The rotating zodiac ring — a whole, seamless PNG with its own transparent
+     center hole, so nothing needs to be cut out of it and nothing can ever
+     "bite into" the artwork as it spins. */
+  .hero-art-core img.paw-ring{
+    z-index:1;
+    animation: spin-cw 72s linear infinite;
+    transform-origin:50% 50%;
+  }
+  @keyframes spin-cw{ to{ transform:rotate(360deg); } }
+  .hero-art-glow{
+    position:absolute; inset:-40px; border-radius:50%; z-index:-1;
+    background:radial-gradient(circle, rgba(212,175,106,0.22), transparent 65%);
+    filter:blur(10px); animation:pulse-glow 4s ease-in-out infinite;
+  }
+  @keyframes pulse-glow{ 0%,100%{opacity:0.6; transform:scale(1);} 50%{opacity:1; transform:scale(1.06);} }
+  @media (prefers-reduced-motion: reduce){
+    .hero-art-core, .hero-art-glow, .hero-art-core img.paw-ring{animation:none;}
+  }
+
   /* ---------- trust bar ---------- */
   .trust{
     display:flex; flex-wrap:wrap; gap:14px 34px; justify-content:center;
@@ -423,7 +531,7 @@
   }
   .trust span{display:flex; align-items:center; gap:8px;}
   .trust b{color:var(--gold-soft); font-family:var(--serif); font-size:1rem;}
- 
+
   /* ---------- section heading ---------- */
   .section-head{max-width:620px; margin:0 auto 52px; text-align:center;}
   .section-head .eyebrow{margin-bottom:16px;}
@@ -433,40 +541,51 @@
     color:var(--cream); margin-bottom:14px; line-height:1.25;
   }
   .section-head p{color:var(--muted); font-size:1.02rem;}
- 
-  section{padding:88px 0;}
+
+  section{padding:96px 0;}
   section.alt{
     background:linear-gradient(180deg, transparent, var(--bg-panel) 12%, var(--bg-panel) 88%, transparent);
   }
- 
-  /* ---------- features: constellation grid ---------- */
-  .constellation{position:relative;}
-  .feature-grid{
-    display:grid; grid-template-columns:repeat(3, 1fr); gap:22px;
-    position:relative;
-  }
+
+  /* ---------- features ---------- */
+  .feature-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:22px; position:relative;}
   @media (max-width:900px){ .feature-grid{grid-template-columns:repeat(2, 1fr);} }
   @media (max-width:600px){ .feature-grid{grid-template-columns:1fr;} }
- 
+
   .feature-card{
+    --mx:50%; --my:50%;
     background:linear-gradient(160deg, rgba(244,239,228,0.045), rgba(244,239,228,0.015));
     border:1px solid var(--line-soft);
     border-radius:var(--radius);
     padding:30px 26px;
-    transition:border-color 0.25s, transform 0.25s;
-    position:relative;
+    transition:border-color 0.3s, transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+    position:relative; overflow:hidden;
+    transform-style:preserve-3d;
   }
+  .feature-card::before{
+    content:''; position:absolute; inset:0; opacity:0; pointer-events:none;
+    background:radial-gradient(circle 180px at var(--mx) var(--my), rgba(212,175,106,0.18), transparent 70%);
+    transition:opacity 0.3s;
+  }
+  .feature-card:hover::before{opacity:1;}
   .feature-card:hover{
     border-color:var(--line);
-    transform:translateY(-4px);
+    transform:translateY(-6px);
+    box-shadow:0 20px 40px -20px rgba(0,0,0,0.5);
+  }
+  .feature-card.lead-card{
+    background:linear-gradient(160deg, rgba(212,175,106,0.10), rgba(244,239,228,0.02));
+    border-color:var(--line);
   }
   .feature-star{
-    width:42px; height:42px; border-radius:50%;
+    width:44px; height:44px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    background:radial-gradient(circle, rgba(212,175,106,0.25), rgba(212,175,106,0.04));
+    background:radial-gradient(circle, rgba(212,175,106,0.28), rgba(212,175,106,0.05));
     border:1px solid var(--line);
-    font-size:1.15rem; margin-bottom:18px; color:var(--gold-soft);
+    font-size:1.2rem; margin-bottom:18px; color:var(--gold-soft);
+    transition:transform 0.4s var(--ease-out);
   }
+  .feature-card:hover .feature-star{transform:scale(1.12) rotate(8deg);}
   .feature-card h3{
     font-family:var(--serif); font-weight:600; font-size:1.15rem;
     margin-bottom:10px; color:var(--cream);
@@ -477,19 +596,22 @@
     letter-spacing:0.08em; text-transform:uppercase; color:var(--gold);
     border:1px solid var(--line); border-radius:999px; padding:4px 11px;
   }
- 
+
   /* ---------- how it works ---------- */
-  .steps{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:0;
-    counter-reset:step;
-  }
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:0; position:relative;}
   @media (max-width:800px){ .steps{grid-template-columns:1fr; gap:34px;} }
-  .step{
-    position:relative; padding:0 26px;
-    border-left:1px solid var(--line-soft);
+  .steps-line{
+    position:absolute; top:20px; left:0; right:0; height:1px;
+    background:var(--line-soft); z-index:0;
   }
-  .steps .step:first-child{border-left:none;}
-  @media (max-width:800px){ .step{border-left:none; padding-left:0; border-top:1px solid var(--line-soft); padding-top:30px;} .step:first-child{border-top:none; padding-top:0;} }
+  .steps-line-fill{
+    position:absolute; top:0; left:0; height:100%; width:0%;
+    background:linear-gradient(90deg, var(--gold), var(--gold-soft));
+    transition:width 1.4s var(--ease-in-out);
+  }
+  @media (max-width:800px){ .steps-line{display:none;} }
+  .step{position:relative; padding:0 26px; z-index:1;}
+  @media (max-width:800px){ .step{padding-left:0; border-top:1px solid var(--line-soft); padding-top:30px;} .step:first-child{border-top:none; padding-top:0;} }
   .step .num{
     font-family:var(--serif); font-style:italic; font-size:2.4rem;
     color:transparent; -webkit-text-stroke:1px var(--gold);
@@ -497,60 +619,71 @@
   }
   .step h3{font-family:var(--serif); font-size:1.15rem; margin-bottom:10px; color:var(--cream);}
   .step p{color:var(--muted); font-size:0.95rem;}
- 
+
   /* ---------- pricing ---------- */
-  .price-grid{
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:18px;
-  }
+  .price-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:18px;}
   .price-card{
     background:var(--bg-panel-2);
     border:1px solid var(--line-soft);
     border-radius:var(--radius);
     padding:26px 22px;
     text-align:center;
+    transition:transform 0.3s var(--ease-out), border-color 0.3s, box-shadow 0.3s;
   }
+  .price-card:hover{transform:translateY(-4px); border-color:var(--line); box-shadow:0 16px 34px -18px rgba(212,175,106,0.35);}
   .price-card .label{color:var(--muted); font-size:0.85rem; margin-bottom:10px;}
-  .price-card .amount{
-    font-family:var(--serif); font-weight:700; font-size:1.9rem; color:var(--gold-soft);
-  }
+  .price-card .amount{font-family:var(--serif); font-weight:700; font-size:1.9rem; color:var(--gold-soft);}
   .price-card .amount small{font-size:0.9rem; color:var(--muted); font-weight:500; font-family:var(--sans);}
-  .price-note{
-    text-align:center; color:var(--muted-dim); font-size:0.88rem; margin-top:26px;
-  }
- 
-  /* ---------- FAQ ---------- */
+  .price-note{text-align:center; color:var(--muted-dim); font-size:0.88rem; margin-top:26px;}
+
+  /* ---------- FAQ accordion ---------- */
   .faq-list{max-width:760px; margin:0 auto;}
-  .faq-item{
-    border-bottom:1px solid var(--line-soft);
-    padding:26px 0;
+  .faq-item{border-bottom:1px solid var(--line-soft);}
+  .faq-q{
+    width:100%; text-align:left; background:none; border:none; cursor:pointer;
+    padding:24px 0; display:flex; gap:14px; align-items:center; justify-content:space-between;
+    font-family:var(--serif); font-size:1.08rem; color:var(--cream);
   }
-  .faq-item h3{
-    font-family:var(--serif); font-size:1.08rem; color:var(--cream); margin-bottom:10px;
-    display:flex; gap:12px; align-items:baseline;
+  .faq-q .qtext{display:flex; gap:12px; align-items:baseline;}
+  .faq-q .qtext::before{content:"✦"; color:var(--gold); font-size:0.8rem;}
+  .faq-plus{
+    flex:none; width:26px; height:26px; border-radius:50%; border:1px solid var(--line);
+    position:relative; transition:transform 0.35s var(--ease-in-out), border-color 0.25s;
   }
-  .faq-item h3::before{content:"✦"; color:var(--gold); font-size:0.8rem;}
-  .faq-item p{color:var(--muted); font-size:0.96rem; padding-left:24px;}
- 
+  .faq-plus::before, .faq-plus::after{
+    content:''; position:absolute; top:50%; left:50%; background:var(--gold-soft);
+    transition:transform 0.3s var(--ease-out);
+  }
+  .faq-plus::before{width:10px; height:1px; transform:translate(-50%,-50%);}
+  .faq-plus::after{width:1px; height:10px; transform:translate(-50%,-50%);}
+  .faq-item.open .faq-plus{transform:rotate(135deg); border-color:var(--gold);}
+  .faq-a-wrap{
+    display:grid; grid-template-rows:0fr; transition:grid-template-rows 0.4s var(--ease-in-out);
+  }
+  .faq-item.open .faq-a-wrap{grid-template-rows:1fr;}
+  .faq-a-inner{overflow:hidden;}
+  .faq-item p{color:var(--muted); font-size:0.96rem; padding:0 24px 24px; opacity:0; transition:opacity 0.3s ease 0.05s;}
+  .faq-item.open p{opacity:1;}
+
   /* ---------- final CTA ---------- */
   .cta-block{
-    text-align:center;
-    background:radial-gradient(ellipse 700px 300px at 50% 0%, rgba(212,175,106,0.14), transparent 70%), var(--bg-panel);
+    text-align:center; position:relative; overflow:hidden;
+    background:var(--bg-panel);
     border:1px solid var(--line);
     border-radius:28px;
     padding:64px 32px;
   }
-  .cta-block h2{
-    font-family:var(--serif); font-weight:600; font-size:clamp(1.6rem, 3.4vw, 2.2rem);
-    margin-bottom:16px;
+  .cta-block::before{
+    content:''; position:absolute; inset:-50%;
+    background:radial-gradient(ellipse 500px 300px at 50% 30%, rgba(212,175,106,0.20), transparent 70%);
+    animation:pulse-glow 5s ease-in-out infinite;
   }
+  .cta-block > *{position:relative;}
+  .cta-block h2{font-family:var(--serif); font-weight:600; font-size:clamp(1.6rem, 3.4vw, 2.2rem); margin-bottom:16px;}
   .cta-block p{color:var(--muted); margin-bottom:30px; max-width:480px; margin-left:auto; margin-right:auto;}
- 
+
   /* ---------- footer ---------- */
-  footer{
-    padding:50px 0 40px;
-    border-top:1px solid var(--line-soft);
-    color:var(--muted-dim); font-size:0.86rem;
-  }
+  footer{padding:50px 0 40px; border-top:1px solid var(--line-soft); color:var(--muted-dim); font-size:0.86rem;}
   footer .wrap{display:flex; flex-wrap:wrap; justify-content:space-between; gap:20px; align-items:center;}
   footer a{color:var(--muted); text-decoration:none;}
   footer a:hover{color:var(--gold-soft);}
@@ -563,11 +696,12 @@
     background:linear-gradient(135deg, var(--gold), #b98f4a);
     box-shadow:0 8px 24px -8px rgba(212,175,106,0.55);
     display:flex; align-items:center; justify-content:center;
-    opacity:0; transform:translateY(12px); pointer-events:none;
-    transition:opacity 0.25s ease, transform 0.25s ease, box-shadow 0.18s ease;
+    opacity:0; transform:translateY(12px) scale(0.9); pointer-events:none;
+    transition:opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out), box-shadow 0.18s ease;
   }
-  .to-top.visible{opacity:1; transform:translateY(0); pointer-events:auto;}
-  .to-top:hover{box-shadow:0 12px 28px -8px rgba(212,175,106,0.7);}
+  .to-top.visible{opacity:1; transform:translateY(0) scale(1); pointer-events:auto;}
+  .to-top:hover{box-shadow:0 12px 28px -8px rgba(212,175,106,0.7); transform:translateY(-2px) scale(1);}
+  .to-top:active{transform:scale(0.92);}
   .to-top svg{width:20px; height:20px;}
 </style>
 <!-- Yandex.Metrika counter -->
@@ -584,10 +718,14 @@
 <!-- /Yandex.Metrika counter -->
 </head>
 <body>
- 
-<div class="stars" id="stars"></div>
- 
-<header class="site">
+
+<noscript><style>.reveal{opacity:1 !important; transform:none !important;} .hero p.lead, .hero-actions{opacity:1 !important;} h1 .word{opacity:1 !important; transform:none !important;}</style></noscript>
+<div class="grain"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+<div class="cursor-dot" id="cursor-dot"></div>
+<div id="stargl"></div>
+
+<header class="site" id="site-header">
   <div class="wrap header-inner" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
     <a href="#" class="logo" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;"><span class="moon">☾</span> Душа в душу</a>
     <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
@@ -604,74 +742,81 @@
     </nav>
   </div>
 </header>
- 
+
 <section class="hero">
   <div class="wrap hero-inner" style="display:contents;">
     <div class="hero-copy wrap" style="padding:0;">
-      <span class="eyebrow">✦ AI-астрология для питомцев</span>
-      <h1>Узнайте, что<br>говорят звёзды<br><em>о вашем питомце</em></h1>
+      <span class="eyebrow reveal">✦ AI-астрология для питомцев</span>
+      <h1 aria-label="Узнайте, что говорят звёзды о вашем питомце"><span class="word" style="animation-delay:0.05s">Узнайте,</span> <span class="word" style="animation-delay:0.12s">что</span><br><span class="word" style="animation-delay:0.19s">говорят</span> <span class="word" style="animation-delay:0.26s">звёзды</span><br><em><span class="word" style="animation-delay:0.33s">о</span> <span class="word" style="animation-delay:0.40s">вашем</span> <span class="word" style="animation-delay:0.47s">питомце</span></em></h1>
       <p class="lead">Натальная карта, таро-расклад, совместимость и ежедневный гороскоп — прямо в Telegram. Первый разбор всегда бесплатный.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="https://t.me/SoulPetBot">Начать в Telegram →</a>
-        <a class="btn btn-ghost" href="#how">Как это работает</a>
+        <a class="btn btn-primary magnetic" href="https://t.me/SoulPetBot">Начать в Telegram →</a>
+        <a class="btn btn-ghost magnetic" href="#how">Как это работает</a>
       </div>
     </div>
     <div class="hero-art wrap" style="padding:0;">
       <div class="hero-art-frame">
-        <img src="paw-zodiac.jpg" alt="Золотая лапа питомца в центре зодиакального круга — символ бота «Душа в душу»">
+        <div class="hero-art-glow"></div>
+        <div class="hero-art-core">
+          <img class="paw-ring" src="zodiac-ring.png" alt="" aria-hidden="true">
+          <svg class="paw-plane" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M21.2 2.9 2.6 10.3c-1.1.44-1.1 1.06-.2 1.33l4.77 1.49 1.83 5.6c.23.63.4.88.82.88.34 0 .5-.16.7-.35l2-1.94 4.15 3.06c.77.42 1.32.2 1.51-.71l2.74-12.9c.3-1.14-.42-1.65-1.71-1.86Z"/>
+          </svg>
+          <img class="paw-center" src="zodiac-paw.png" alt="Золотая лапа питомца в центре зодиакального круга — символ бота «Душа в душу»">
+        </div>
       </div>
     </div>
   </div>
 </section>
- 
+
 <div class="wrap">
-  <div class="trust">
+  <div class="trust reveal">
     <span><b>4</b>&nbsp;направления разбора</span>
     <span><b>1-й</b>&nbsp;разбор бесплатно</span>
     <span><b>Swiss&nbsp;Ephemeris</b>&nbsp;в основе расчётов</span>
     <span><b>Telegram&nbsp;Stars</b>&nbsp;для оплаты</span>
   </div>
 </div>
- 
-<section id="features" class="alt constellation">
+
+<section id="features" class="alt">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <span class="eyebrow">✦ Возможности</span>
       <h2>Пять способов узнать питомца лучше</h2>
       <p>Каждый раздел строится на точной дате, времени и месте рождения — вашем или питомца.</p>
     </div>
     <div class="feature-grid">
-      <div class="feature-card">
+      <div class="feature-card lead-card reveal">
         <div class="feature-star">☉</div>
         <h3>Натальная карта</h3>
         <p>Полный разбор характера питомца по дате, времени и месту рождения — сильные стороны, склонности, чего ждать в поведении.</p>
         <span class="tag">от 25 ⭐</span>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal">
         <div class="feature-star">☽</div>
         <h3>Таро-расклад</h3>
         <p>Задайте вопрос о питомце — или о себе, если питомца пока нет — и получите расклад с трактовкой карт.</p>
         <span class="tag">от 15 ⭐</span>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal">
         <div class="feature-star">♡</div>
         <h3>Совместимость</h3>
         <p>Насколько гармоничен союз питомца с хозяином или двух питомцев между собой — по натальным картам обоих участников.</p>
         <span class="tag">от 20 ⭐</span>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal">
         <div class="feature-star">✦</div>
         <h3>Ежедневный гороскоп</h3>
         <p>Подписка на короткий персональный прогноз для питомца каждое утро — настроение дня, активность, совет.</p>
         <span class="tag">подписка</span>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal">
         <div class="feature-star">🜁</div>
         <h3>Подбор питомца</h3>
         <p>Ещё не завели питомца? Бот подскажет подходящий вид и породу на основе вашей собственной натальной карты.</p>
         <span class="tag">бесплатно</span>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal">
         <div class="feature-star">☾</div>
         <h3>Узнать питомца лучше</h3>
         <p>Короткий квиз о повседневных привычках питомца — ответы копятся и делают будущие разборы точнее.</p>
@@ -680,25 +825,26 @@
     </div>
   </div>
 </section>
- 
+
 <section id="how">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <span class="eyebrow">✦ Начало</span>
       <h2>Три шага до первого разбора</h2>
     </div>
-    <div class="steps">
-      <div class="step">
+    <div class="steps" id="steps">
+      <div class="steps-line"><div class="steps-line-fill" id="steps-line-fill"></div></div>
+      <div class="step reveal">
         <span class="num">01</span>
         <h3>Откройте бота</h3>
         <p>Нажмите «Начать в Telegram» — бот встретит вас в главном меню, установка ничего не требует.</p>
       </div>
-      <div class="step">
+      <div class="step reveal">
         <span class="num">02</span>
         <h3>Добавьте питомца</h3>
         <p>Укажите имя, вид, породу, дату, время и место рождения — это займёт пару минут.</p>
       </div>
-      <div class="step">
+      <div class="step reveal">
         <span class="num">03</span>
         <h3>Получите разбор</h3>
         <p>Выберите натальную карту, таро, совместимость или гороскоп — первый разбор бесплатный.</p>
@@ -706,32 +852,32 @@
     </div>
   </div>
 </section>
- 
+
 <section id="pricing" class="alt">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <span class="eyebrow">✦ Тарифы</span>
       <h2>Прозрачные цены в Telegram Stars</h2>
       <p>Первый разбор в каждом разделе — бесплатно. Дальше — по мере необходимости.</p>
     </div>
     <div class="price-grid">
-      <div class="price-card">
+      <div class="price-card reveal">
         <div class="label">Натальная карта</div>
         <div class="amount">25 <small>⭐</small></div>
       </div>
-      <div class="price-card">
+      <div class="price-card reveal">
         <div class="label">Таро-расклад</div>
         <div class="amount">15 <small>⭐</small></div>
       </div>
-      <div class="price-card">
+      <div class="price-card reveal">
         <div class="label">Совместимость</div>
         <div class="amount">20 <small>⭐</small></div>
       </div>
-      <div class="price-card">
+      <div class="price-card reveal">
         <div class="label">Лунный календарь</div>
         <div class="amount">15 <small>⭐</small></div>
       </div>
-      <div class="price-card">
+      <div class="price-card reveal">
         <div class="label">Безлимит на месяц</div>
         <div class="amount">199 <small>⭐</small></div>
       </div>
@@ -739,82 +885,82 @@
     <p class="price-note">Пакеты пополнения: 50 или 100 ⭐, либо безлимитная подписка на месяц за 199 ⭐.</p>
   </div>
 </section>
- 
+
 <section id="faq">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <span class="eyebrow">✦ Вопросы</span>
       <h2>Частые вопросы</h2>
     </div>
-    <div class="faq-list">
-      <div class="faq-item">
-        <h3>Что такое «Душа в душу»?</h3>
-        <p>Telegram-бот, который строит натальную карту питомца по дате, времени и месту рождения, делает таро-расклады, рассчитывает совместимость и ведёт ежедневный гороскоп — прямо в мессенджере, без установки приложений.</p>
+    <div class="faq-list" id="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">Что такое «Душа в душу»?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>Telegram-бот, который строит натальную карту питомца по дате, времени и месту рождения, делает таро-расклады, рассчитывает совместимость и ведёт ежедневный гороскоп — прямо в мессенджере, без установки приложений.</p></div></div>
       </div>
-      <div class="faq-item">
-        <h3>Сколько это стоит?</h3>
-        <p>Первый разбор в каждом разделе бесплатный. Дальнейшие запросы — от 15 до 25 ⭐ за услугу, либо безлимитный пакет на месяц за 199 ⭐.</p>
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">Сколько это стоит?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>Первый разбор в каждом разделе бесплатный. Дальнейшие запросы — от 15 до 25 ⭐ за услугу, либо безлимитный пакет на месяц за 199 ⭐.</p></div></div>
       </div>
-      <div class="faq-item">
-        <h3>У меня ещё нет питомца — бот всё равно полезен?</h3>
-        <p>Да. Бот подберёт подходящий вид и породу питомца на основе вашей собственной натальной карты, а также может сделать таро-расклад для вас лично.</p>
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">У меня ещё нет питомца — бот всё равно полезен?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>Да. Бот подберёт подходящий вид и породу питомца на основе вашей собственной натальной карты, а также может сделать таро-расклад для вас лично.</p></div></div>
       </div>
-      <div class="faq-item">
-        <h3>Как рассчитывается натальная карта питомца?</h3>
-        <p>На основе точной даты, времени и места рождения — с использованием библиотеки Swiss Ephemeris, той же основы, что применяется в профессиональной астрологии для людей.</p>
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">Как рассчитывается натальная карта питомца?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>На основе точной даты, времени и места рождения — с использованием библиотеки Swiss Ephemeris, той же основы, что применяется в профессиональной астрологии для людей.</p></div></div>
       </div>
-      <div class="faq-item">
-        <h3>Мои данные в безопасности?</h3>
-        <p>Telegram ID хранится в анонимизированном виде, данные не передаются третьим лицам. Подробности — в <a href="privacy.html" style="color:var(--gold-soft)">политике конфиденциальности</a>.</p>
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">Мои данные в безопасности?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>Telegram ID хранится в анонимизированном виде, данные не передаются третьим лицам. Подробности — в <a href="privacy.html" style="color:var(--gold-soft)">политике конфиденциальности</a>.</p></div></div>
       </div>
-      <div class="faq-item">
-        <h3>Есть ли гороскоп для кота или собаки бесплатно?</h3>
-        <p>Да, первый ежедневный гороскоп и первая натальная карта для любого питомца — кота, собаки, хомяка, попугая — бесплатны. Дальше подписка на гороскоп оплачивается через Telegram Stars.</p>
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">Есть ли гороскоп для кота или собаки бесплатно?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>Да, первый ежедневный гороскоп и первая натальная карта для любого питомца — кота, собаки, хомяка, попугая — бесплатны. Дальше подписка на гороскоп оплачивается через Telegram Stars.</p></div></div>
       </div>
-      <div class="faq-item">
-        <h3>Можно узнать совместимость кошки и собаки по знаку зодиака?</h3>
-        <p>Да. Раздел «Совместимость» сравнивает натальные карты двух питомцев любых видов — кошки и собаки, хомяка и кота — или питомца с хозяином, и показывает, где будет гармония, а где возможны трения.</p>
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">Можно узнать совместимость кошки и собаки по знаку зодиака?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>Да. Раздел «Совместимость» сравнивает натальные карты двух питомцев любых видов — кошки и собаки, хомяка и кота — или питомца с хозяином, и показывает, где будет гармония, а где возможны трения.</p></div></div>
       </div>
-      <div class="faq-item">
-        <h3>Работает ли таро для животных?</h3>
-        <p>Да, можно задать конкретный вопрос о поведении, здоровье или настроении питомца — карты дадут образный ответ. Таро доступно и для самого хозяина, если питомца пока нет.</p>
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">Работает ли таро для животных?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>Да, можно задать конкретный вопрос о поведении, здоровье или настроении питомца — карты дадут образный ответ. Таро доступно и для самого хозяина, если питомца пока нет.</p></div></div>
       </div>
-      <div class="faq-item">
-        <h3>Какой знак зодиака у моего питомца?</h3>
-        <p>Знак зодиака питомца определяется по дате рождения так же, как у человека — рассчитывается автоматически при построении натальной карты в боте.</p>
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">Какой знак зодиака у моего питомца?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>Знак зодиака питомца определяется по дате рождения так же, как у человека — рассчитывается автоматически при построении натальной карты в боте.</p></div></div>
       </div>
-      <div class="faq-item">
-        <h3>Как подобрать питомца по гороскопу владельца?</h3>
-        <p>Бот строит натальную карту владельца по дате, времени и месту рождения и бесплатно подсказывает подходящий вид и темперамент питомца, а за доплату — кличку, гармоничный знак и удачный период для его появления в семье.</p>
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">Как подобрать питомца по гороскопу владельца?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>Бот строит натальную карту владельца по дате, времени и месту рождения и бесплатно подсказывает подходящий вид и темперамент питомца, а за доплату — кличку, гармоничный знак и удачный период для его появления в семье.</p></div></div>
       </div>
-      <div class="faq-item">
-        <h3>Есть ли лунный календарь для питомцев?</h3>
-        <p>Да, на выбранную дату или месяц бот показывает благоприятные дни для груминга, визита к ветеринару, активных игр и спокойного отдыха питомца.</p>
+      <div class="faq-item reveal">
+        <button class="faq-q"><span class="qtext">Есть ли лунный календарь для питомцев?</span><span class="faq-plus"></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p>Да, на выбранную дату или месяц бот показывает благоприятные дни для груминга, визита к ветеринару, активных игр и спокойного отдыха питомца.</p></div></div>
       </div>
     </div>
   </div>
 </section>
- 
+
 <section class="alt">
   <div class="wrap" style="max-width:820px;">
-    <p style="color:var(--muted-dim); font-size:0.88rem; line-height:1.8; text-align:center;">
+    <p class="reveal" style="color:var(--muted-dim); font-size:0.88rem; line-height:1.8; text-align:center;">
       «Душа в душу» — это гороскоп для питомцев, натальная карта кота и собаки, астрология для животных,
       таро-расклад для питомца, совместимость знаков зодиака кошки и собаки, лунный календарь для питомцев
       и подбор питомца по гороскопу владельца. Всё это работает прямо в Telegram-боте <a href="https://t.me/SoulPetBot" style="color:var(--gold-soft)">@SoulPetBot</a>, без установки приложений, на основе расчётов Swiss Ephemeris.
     </p>
   </div>
 </section>
- 
+
 <section>
   <div class="wrap">
-    <div class="cta-block">
+    <div class="cta-block reveal">
       <h2>Первый взгляд на звёзды — бесплатно</h2>
       <p>Откройте бота и добавьте питомца — натальная карта будет готова через пару минут.</p>
-      <a class="btn btn-primary" href="https://t.me/SoulPetBot">Начать в Telegram →</a>
+      <a class="btn btn-primary magnetic" href="https://t.me/SoulPetBot">Начать в Telegram →</a>
     </div>
   </div>
 </section>
- 
+
 <footer>
   <div class="wrap">
     <div>© 2026 Душа в душу</div>
@@ -824,7 +970,7 @@
     </div>
   </div>
 </footer>
- 
+
 <button class="to-top" id="to-top" aria-label="Наверх" onclick="window.scrollTo({top:0,behavior:'smooth'})">
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="#1a1408" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -832,34 +978,195 @@
 </button>
 
 <script>
-  // back-to-top visibility
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isTouch = window.matchMedia('(hover:none), (pointer:coarse)').matches;
+
+  /* ---------- back-to-top visibility ---------- */
+  var toTop = document.getElementById('to-top');
+  var header = document.getElementById('site-header');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 480){ toTop.classList.add('visible'); } else { toTop.classList.remove('visible'); }
+    if(window.scrollY > 20){ header.classList.add('scrolled'); } else { header.classList.remove('scrolled'); }
+  }, {passive:true});
+
+  /* ---------- WebGL star cloud with depth of field ---------- */
   (function(){
-    var btn = document.getElementById('to-top');
-    window.addEventListener('scroll', function(){
-      if(window.scrollY > 480){ btn.classList.add('visible'); }
-      else{ btn.classList.remove('visible'); }
+    var el = document.getElementById('stargl');
+    if(!el || !window.THREE) return;
+
+    var w = window.innerWidth, h = window.innerHeight;
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(50, w/h, 0.1, 100);
+    camera.position.z = 5;
+    var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+    renderer.setSize(w,h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    el.appendChild(renderer.domElement);
+
+    var N = reduce ? 220 : (w < 700 ? 320 : 560);
+    var positions = new Float32Array(N*3);
+    var sizes = new Float32Array(N);
+    for(var i=0;i<N;i++){
+      positions[i*3] = (Math.random()-0.5)*12;
+      positions[i*3+1] = (Math.random()-0.5)*7;
+      positions[i*3+2] = (Math.random()-0.5)*10;
+      sizes[i] = Math.random()*3+0.5;
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+    geo.setAttribute('size', new THREE.BufferAttribute(sizes,1));
+
+    var spriteCanvas = document.createElement('canvas');
+    spriteCanvas.width = 64; spriteCanvas.height = 64;
+    var sc = spriteCanvas.getContext('2d');
+    var grad = sc.createRadialGradient(32,32,0,32,32,32);
+    grad.addColorStop(0,'rgba(243,217,138,1)');
+    grad.addColorStop(1,'rgba(243,217,138,0)');
+    sc.fillStyle = grad; sc.fillRect(0,0,64,64);
+    var spriteTex = new THREE.CanvasTexture(spriteCanvas);
+
+    var mat = new THREE.PointsMaterial({
+      size:0.16, map:spriteTex, transparent:true, depthWrite:false,
+      blending:THREE.AdditiveBlending
     });
+    var points = new THREE.Points(geo, mat);
+    scene.add(points);
+
+    var mx=0,my=0;
+    if(!isTouch && !reduce){
+      window.addEventListener('mousemove', function(e){
+        mx = (e.clientX/window.innerWidth - 0.5);
+        my = (e.clientY/window.innerHeight - 0.5);
+      });
+    }
+
+    window.addEventListener('resize', function(){
+      w = window.innerWidth; h = window.innerHeight;
+      camera.aspect = w/h; camera.updateProjectionMatrix();
+      renderer.setSize(w,h);
+    });
+
+    function animate(){
+      requestAnimationFrame(animate);
+      if(!reduce){
+        points.rotation.y += 0.0007;
+        camera.position.x += (mx*1.4 - camera.position.x)*0.03;
+        camera.position.y += (-my*1.0 - camera.position.y)*0.03;
+        camera.lookAt(scene.position);
+      }
+      renderer.render(scene, camera);
+    }
+    animate();
   })();
+
+  /* ---------- GSAP parallax depth (progressive enhancement) ---------- */
+  if(window.gsap && window.ScrollTrigger && !reduce){
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.to('.hero-art-frame', {
+      yPercent: -16, ease:'none',
+      scrollTrigger:{ trigger:'.hero', start:'top top', end:'bottom top', scrub:0.6 }
+    });
+    gsap.utils.toArray('section.alt').forEach(function(sec){
+      gsap.fromTo(sec, {backgroundPositionY:'0%'}, {
+        backgroundPositionY:'8%', ease:'none',
+        scrollTrigger:{ trigger:sec, start:'top bottom', end:'bottom top', scrub:0.8 }
+      });
+    });
+  }
+
+  /* ---------- custom cursor ---------- */
+  if(!isTouch){
+    var dot = document.getElementById('cursor-dot');
+    var ring = document.getElementById('cursor-ring');
+    var mx=0,my=0, rx=0, ry=0;
+    window.addEventListener('mousemove', function(e){
+      mx = e.clientX; my = e.clientY;
+      dot.style.transform = 'translate('+mx+'px,'+my+'px) translate(-50%,-50%)';
+    });
+    function loop(){
+      rx += (mx-rx)*0.18; ry += (my-ry)*0.18;
+      ring.style.transform = 'translate('+rx+'px,'+ry+'px) translate(-50%,-50%)';
+      requestAnimationFrame(loop);
+    }
+    loop();
+    document.querySelectorAll('a,button,.feature-card,.price-card').forEach(function(el){
+      el.addEventListener('mouseenter', function(){ ring.classList.add('hovering'); });
+      el.addEventListener('mouseleave', function(){ ring.classList.remove('hovering'); });
+    });
+  }
+
+  /* ---------- magnetic buttons ---------- */
+  if(!isTouch && !reduce){
+    document.querySelectorAll('.magnetic').forEach(function(el){
+      el.addEventListener('mousemove', function(e){
+        var r = el.getBoundingClientRect();
+        var x = (e.clientX - r.left - r.width/2) * 0.28;
+        var y = (e.clientY - r.top - r.height/2) * 0.5;
+        el.style.transform = 'translate('+x+'px,'+y+'px)';
+      });
+      el.addEventListener('mouseleave', function(){ el.style.transform = ''; });
+    });
+  }
+
+  /* ---------- spotlight on feature cards ---------- */
+  document.querySelectorAll('.feature-card').forEach(function(card){
+    card.addEventListener('mousemove', function(e){
+      var r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX-r.left)+'px');
+      card.style.setProperty('--my', (e.clientY-r.top)+'px');
+    });
+  });
+
+  /* ---------- scroll reveal ---------- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry, idx){
+        if(entry.isIntersecting){
+          var el = entry.target;
+          var siblings = Array.prototype.slice.call(el.parentElement.querySelectorAll('.reveal'));
+          var order = siblings.indexOf(el);
+          el.style.animationDelay = (Math.min(order,6)*0.08)+'s';
+          el.classList.add('is-visible');
+          io.unobserve(el);
+        }
+      });
+    }, {threshold:0.15, rootMargin:'0px 0px -60px 0px'});
+    revealEls.forEach(function(el){ io.observe(el); });
+    // Safety net: if an element never crosses the viewport (fast programmatic
+    // navigation, some screenshot tools, or an interrupted observer), don't
+    // leave it permanently invisible.
+    setTimeout(function(){
+      revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+    }, 2500);
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+
+  /* ---------- steps progress line ---------- */
+  var stepsSection = document.getElementById('steps');
+  var fill = document.getElementById('steps-line-fill');
+  if(stepsSection && fill){
+    var stepsIo = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){ fill.style.width = '100%'; stepsIo.unobserve(entry.target); }
+      });
+    }, {threshold:0.4});
+    stepsIo.observe(stepsSection);
+  }
+
+  /* ---------- FAQ accordion ---------- */
+  document.querySelectorAll('.faq-item').forEach(function(item){
+    var btn = item.querySelector('.faq-q');
+    btn.addEventListener('click', function(){
+      var wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(o){ o.classList.remove('open'); });
+      if(!wasOpen){ item.classList.add('open'); }
+    });
+  });
+})();
 </script>
 
-<script>
-  // ambient starfield
-  (function(){
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var container = document.getElementById('stars');
-    var count = window.innerWidth < 700 ? 40 : 80;
-    for(var i=0;i<count;i++){
-      var s = document.createElement('div');
-      s.className = 'star';
-      s.style.left = (Math.random()*100)+'%';
-      s.style.top = (Math.random()*100)+'%';
-      s.style.animationDelay = (Math.random()*5)+'s';
-      s.style.animationDuration = (3+Math.random()*4)+'s';
-      if(reduce){ s.style.animation='none'; s.style.opacity = 0.25+Math.random()*0.3; }
-      container.appendChild(s);
-    }
-  })();
-</script>
- 
 </body>
 </html>
