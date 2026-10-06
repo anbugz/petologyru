@@ -331,7 +331,7 @@ section.block{padding:clamp(72px,9vw,112px) 0}
       <p class="sign-text" id="signText" aria-live="polite"></p>
       <form class="date-pill" id="dateForm" action="https://t.me/SoulPetBot">
         <label for="bd">Дата рождения питомца</label>
-        <input id="bd" type="text" inputmode="numeric" autocomplete="off" placeholder="ДД.ММ.ГГГГ" maxlength="10" value="08.11.2024" aria-describedby="bd-hint"><span id="bd-hint" class="sr-only">Введите дату в формате день, месяц, год, например 08.11.2024</span>
+        <input id="bd" type="text" inputmode="numeric" autocomplete="off" placeholder="ДД.ММ.ГГГГ" maxlength="10" value="" aria-describedby="bd-hint"><span id="bd-hint" class="sr-only">Введите дату в формате день, месяц, год, например 08.11.2024</span>
         <a class="btn" href="https://t.me/SoulPetBot">Получить разбор</a>
       </form>
       <div class="trust"><span>Расчёты на Swiss Ephemeris</span><span>Первый разбор бесплатно</span><span>Без установки приложений</span></div>
@@ -491,13 +491,13 @@ section.block{padding:clamp(72px,9vw,112px) 0}
   var starts=[321,420,521,621,723,823,923,1023,1122,1222,120,219];
   var fan=document.getElementById('fan'), wrap=document.getElementById('fanWrap');
   var text=document.getElementById('signText'), hero=document.getElementById('hero');
-  var picked=7, mx=0, cards=[], noClickUntil=0;
+  var picked=-1, center=5.5, mx=0, cards=[], noClickUntil=0;
 
   signs.forEach(function(s,i){
     var b=document.createElement('button');
     b.type='button'; b.className='card'; b.setAttribute('aria-label',s[1]+', '+s[3]);
     b.innerHTML='<span class="fx burst"></span><span class="fx halo"></span><span class="fx sp sp1"></span><span class="fx sp sp2"></span><span class="fx sp sp3"></span>'+
-      '<span class="card-face"><img src="img/cards/'+s[0]+'.webp" alt="'+s[5]+'" width="150" height="310"'+(Math.abs(i-picked)>3?' loading="lazy"':'')+'><span class="fx shine"></span></span>';
+      '<span class="card-face"><img src="img/cards/'+s[0]+'.webp" alt="'+s[5]+'" width="150" height="310"'+(Math.abs(i-5.5)>4?' loading="lazy"':'')+'><span class="fx shine"></span></span>';
     b.addEventListener('click',function(e){if(Date.now()<noClickUntil){e.preventDefault();return}pick(i)});
     fan.appendChild(b); cards.push(b);
   });
@@ -505,13 +505,13 @@ section.block{padding:clamp(72px,9vw,112px) 0}
   function narrow(){return wrap.clientWidth<760}
   function layout(){
     cards.forEach(function(c,i){
-      var shift=narrow()?(-30.25+picked*5.5):0;
+      var shift=narrow()?(-30.25+center*5.5):0;
       c.style.setProperty('--a',(-30.25+i*5.5-shift-mx*(narrow()?5.5:2))+'deg');
       c.style.zIndex=i===picked?30:i+1;
     });
   }
   function pick(i,silent){
-    picked=i;
+    picked=i; center=i;
     cards.forEach(function(c,k){c.classList.toggle('on',k===i);c.setAttribute('aria-pressed',k===i)});
     var s=signs[i];
     text.classList.remove('anim'); void text.offsetWidth; text.classList.add('anim');
@@ -551,7 +551,8 @@ section.block{padding:clamp(72px,9vw,112px) 0}
     })});
     hero.addEventListener('pointerleave',function(){hero.classList.remove('has-pointer');mx=0;ring.style.transform='';layout()});
   }
-  pick(signOf(document.getElementById('bd').value),true);
+  text.innerHTML='Выберите карту или введите дату рождения питомца — покажем, что о нём говорят звёзды.';
+  layout();
 
   /* intro: deal cards out from the centre */
   if(!calm){
@@ -565,19 +566,20 @@ section.block{padding:clamp(72px,9vw,112px) 0}
   var sx=null, sy=0, moved=false, touched=false;
   wrap.addEventListener('contextmenu',function(e){e.preventDefault()});
   wrap.addEventListener('touchcancel',function(){sx=null;cards.forEach(function(c){c.style.transitionDuration=''})});
-  wrap.addEventListener('touchstart',function(e){var t=e.touches[0];sx=t.clientX;sy=t.clientY;moved=false;touched=true},{passive:true});
+  var c0=5.5;
+  wrap.addEventListener('touchstart',function(e){var t=e.touches[0];sx=t.clientX;sy=t.clientY;moved=false;touched=true;c0=center;mx=0},{passive:true});
   wrap.addEventListener('touchmove',function(e){
     if(sx===null)return; var t=e.touches[0], dx=t.clientX-sx, dy=t.clientY-sy;
     if(!moved && Math.abs(dx)<6)return;
     if(!moved && Math.abs(dy)>Math.abs(dx)){sx=null;return}
-    moved=true; if(e.cancelable)e.preventDefault(); mx=Math.max(-1.5,Math.min(1.5,-dx/120));
+    moved=true; if(e.cancelable)e.preventDefault();
+    center=Math.max(0,Math.min(11,c0-dx/60));
     cards.forEach(function(c){c.style.transitionDuration='0ms'}); layout();
   },{passive:false});
   wrap.addEventListener('touchend',function(e){
-    if(sx===null)return; var dx=(e.changedTouches[0].clientX-sx);
+    if(sx===null)return;
     cards.forEach(function(c){c.style.transitionDuration=''});
-    if(moved && e.cancelable)e.preventDefault();
-    if(moved){noClickUntil=Date.now()+600;var step=Math.max(1,Math.min(3,Math.round(Math.abs(dx)/70)));var k=picked+(dx<0?step:-step);k=(k+12)%12;mx=0;pick(k)}
+    if(moved){if(e.cancelable)e.preventDefault();noClickUntil=Date.now()+600;center=Math.round(center);layout()}
     sx=null;
   });
 
