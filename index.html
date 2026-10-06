@@ -162,7 +162,7 @@ h1 img{display:block;width:100%;height:auto;animation:reveal 1400ms var(--ease-o
 h1 .h1-sub{display:block;margin-top:10px;font-family:var(--body);font-weight:500;font-size:clamp(15px,1.6vw,18px);color:var(--soft);letter-spacing:0}
 @keyframes reveal{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(12px)}to{opacity:1;clip-path:inset(0 0 0 0);transform:none}}
 
-.fan-wrap{position:relative;height:calc(430px * var(--s,1));margin-top:calc(-30px * var(--s,1));overflow:hidden;-webkit-mask-image:linear-gradient(180deg,#000 74%,transparent 100%);mask-image:linear-gradient(180deg,#000 74%,transparent 100%)}
+.fan-wrap{position:relative;touch-action:pan-y;height:calc(430px * var(--s,1));margin-top:calc(-30px * var(--s,1));overflow:hidden;-webkit-mask-image:linear-gradient(180deg,#000 74%,transparent 100%);mask-image:linear-gradient(180deg,#000 74%,transparent 100%)}
 .fan{position:absolute;left:50%;top:0;width:1440px;height:430px;margin-left:-720px;transform:scale(var(--s,1));transform-origin:50% 0}
 .card{position:absolute;left:645px;top:90px;width:150px;height:310px;padding:0;border:0;background:none;cursor:pointer;transform-origin:75px 1250px;transform:rotate(var(--a)) translateY(var(--y,0));transition:transform 520ms var(--ease-out)}
 .card-face{position:absolute;inset:0;display:block;border-radius:10px;overflow:hidden;background:#0D0B22;filter:brightness(.72);box-shadow:0 24px 40px -18px rgba(0,0,0,.85);transition:transform 520ms cubic-bezier(.34,1.4,.64,1),filter 300ms ease,box-shadow 300ms ease}
@@ -259,6 +259,7 @@ section.block{padding:clamp(72px,9vw,112px) 0}
   .svc-grid,.faq-list{grid-template-columns:1fr}
   .footer-cols{grid-template-columns:repeat(2,minmax(0,1fr))}
   .moon .tip{display:none}
+  .fan-wrap{margin-top:14px}
   .date-pill{border-radius:24px;padding:14px;flex-direction:column;width:100%;max-width:360px}
   .date-pill .btn{width:100%}
   .plan .peek{right:-8px;top:-36px;width:70px;height:144px}
@@ -497,9 +498,11 @@ section.block{padding:clamp(72px,9vw,112px) 0}
     fan.appendChild(b); cards.push(b);
   });
 
+  function narrow(){return wrap.clientWidth<760}
   function layout(){
     cards.forEach(function(c,i){
-      c.style.setProperty('--a',(-30.25+i*5.5-mx*2)+'deg');
+      var shift=narrow()?(-30.25+picked*5.5):0;
+      c.style.setProperty('--a',(-30.25+i*5.5-shift-mx*(narrow()?5.5:2))+'deg');
       c.style.zIndex=i===picked?30:i+1;
     });
   }
@@ -545,6 +548,40 @@ section.block{padding:clamp(72px,9vw,112px) 0}
     hero.addEventListener('pointerleave',function(){hero.classList.remove('has-pointer');mx=0;ring.style.transform='';layout()});
   }
   pick(signOf(document.getElementById('bd').value),true);
+
+  /* intro: deal cards out from the centre */
+  if(!calm){
+    cards.forEach(function(c){c.style.transition='none';c.style.setProperty('--a','0deg')});
+    void fan.offsetWidth;
+    cards.forEach(function(c,i){c.style.transition='';c.style.transitionDelay=(120+Math.abs(i-5.5)*45)+'ms'});
+    requestAnimationFrame(function(){layout();setTimeout(function(){cards.forEach(function(c){c.style.transitionDelay=''})},1400)});
+  }
+
+  /* touch: swipe to flip through signs, fan follows the finger */
+  var sx=null, sy=0, moved=false, touched=false;
+  wrap.addEventListener('touchstart',function(e){var t=e.touches[0];sx=t.clientX;sy=t.clientY;moved=false;touched=true},{passive:true});
+  wrap.addEventListener('touchmove',function(e){
+    if(sx===null)return; var t=e.touches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+    if(!moved && Math.abs(dx)<8)return;
+    if(!moved && Math.abs(dy)>Math.abs(dx)){sx=null;return}
+    moved=true; mx=Math.max(-1.5,Math.min(1.5,-dx/120));
+    cards.forEach(function(c){c.style.transitionDuration='0ms'}); layout();
+  },{passive:true});
+  wrap.addEventListener('touchend',function(e){
+    if(sx===null)return; var dx=(e.changedTouches[0].clientX-sx);
+    cards.forEach(function(c){c.style.transitionDuration=''});
+    if(moved){var step=Math.max(1,Math.min(3,Math.round(Math.abs(dx)/70)));var k=picked+(dx<0?step:-step);k=(k+12)%12;mx=0;pick(k)}
+    sx=null;
+  });
+
+  /* idle sway on touch devices so the deck feels alive */
+  if(!fine && !calm){
+    var t0=performance.now();
+    (function sway(now){
+      if(!touched && document.visibilityState==='visible'){mx=Math.sin((now-t0)/1600)*0.35;layout()}
+      requestAnimationFrame(sway);
+    })(t0);
+  }
 
   /* moon line: approximate phase and sign */
   try{
