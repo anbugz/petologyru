@@ -162,11 +162,11 @@ h1 img{display:block;width:100%;height:auto;animation:reveal 1400ms var(--ease-o
 h1 .h1-sub{display:block;margin-top:10px;font-family:var(--body);font-weight:500;font-size:clamp(15px,1.6vw,18px);color:var(--soft);letter-spacing:0}
 @keyframes reveal{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(12px)}to{opacity:1;clip-path:inset(0 0 0 0);transform:none}}
 
-.fan-wrap{position:relative;touch-action:pan-y;height:calc(430px * var(--s,1));margin-top:calc(-30px * var(--s,1));overflow:hidden;-webkit-mask-image:linear-gradient(180deg,#000 74%,transparent 100%);mask-image:linear-gradient(180deg,#000 74%,transparent 100%)}
+.fan-wrap{position:relative;touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;height:calc(430px * var(--s,1));margin-top:calc(-30px * var(--s,1));overflow:hidden;-webkit-mask-image:linear-gradient(180deg,#000 74%,transparent 100%);mask-image:linear-gradient(180deg,#000 74%,transparent 100%)}
 .fan{position:absolute;left:50%;top:0;width:1440px;height:430px;margin-left:-720px;transform:scale(var(--s,1));transform-origin:50% 0}
 .card{position:absolute;left:645px;top:90px;width:150px;height:310px;padding:0;border:0;background:none;cursor:pointer;transform-origin:75px 1250px;transform:rotate(var(--a)) translateY(var(--y,0));transition:transform 520ms var(--ease-out)}
 .card-face{position:absolute;inset:0;display:block;border-radius:10px;overflow:hidden;background:#0D0B22;filter:brightness(.72);box-shadow:0 24px 40px -18px rgba(0,0,0,.85);transition:transform 520ms cubic-bezier(.34,1.4,.64,1),filter 300ms ease,box-shadow 300ms ease}
-.card-face img{display:block;width:100%;height:100%;object-fit:cover}
+.card-face img{-webkit-user-drag:none;user-drag:none;pointer-events:none;display:block;width:100%;height:100%;object-fit:cover}
 .card.on{z-index:30;--y:-46px}
 .card.on .card-face{filter:brightness(1.15);transform:rotate(calc(var(--a) * -.6)) scale(1.14);box-shadow:0 0 0 1px var(--gold),0 30px 60px -10px rgba(201,160,255,.45)}
 .fx{position:absolute;pointer-events:none;opacity:0}
@@ -189,9 +189,11 @@ h1 .h1-sub{display:block;margin-top:10px;font-family:var(--body);font-weight:500
 .sign-text{margin:0;max-width:540px;font-size:clamp(16px,1.6vw,18px);color:var(--soft);min-height:3.2em}
 .sign-text.anim{animation:textIn 420ms var(--ease-out) both}
 .sign-text strong{color:var(--gold);font-weight:600}
-.date-pill{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;background:rgba(239,233,220,.06);border:1px solid rgba(235,212,158,.3);border-radius:999px;padding:6px 6px 6px 22px}
+.date-pill{transition:border-color 200ms ease,box-shadow 200ms ease;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;background:rgba(239,233,220,.06);border:1px solid rgba(235,212,158,.3);border-radius:999px;padding:6px 6px 6px 22px}
 .date-pill label{font-size:14px;color:var(--muted)}
-.date-pill input{width:9.5em;background:transparent;border:0;color:var(--text);font-family:var(--body);font-size:16px;min-height:44px;letter-spacing:.04em}
+.date-pill input{width:8.5em;text-align:center;background:rgba(239,233,220,.06);border:1px solid transparent;border-radius:999px;padding:0 14px;color:var(--text);font-family:var(--body);font-size:17px;font-variant-numeric:tabular-nums;min-height:44px;letter-spacing:.06em;transition:border-color 160ms ease,background-color 160ms ease}
+.date-pill input:focus,.date-pill input:focus-visible{outline:none;border-color:rgba(235,212,158,.7);background:rgba(239,233,220,.1)}
+.date-pill:focus-within{border-color:rgba(235,212,158,.6);box-shadow:0 0 0 4px rgba(235,212,158,.08)}
 .date-pill input::placeholder{color:var(--dim)}
 .date-pill.bad{border-color:#E8A0A0}
 .trust{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 32px;margin-top:28px;font-size:13px;color:#7F7AA6}
@@ -262,6 +264,7 @@ section.block{padding:clamp(72px,9vw,112px) 0}
   .fan-wrap{margin-top:14px}
   .date-pill{border-radius:24px;padding:14px;flex-direction:column;width:100%;max-width:360px}
   .date-pill .btn{width:100%}
+  .date-pill input{width:100%;font-size:20px;min-height:52px}
   .plan .peek{right:-8px;top:-36px;width:70px;height:144px}
   .plan .big{font-size:56px}
   .brand span{display:none}
@@ -487,14 +490,14 @@ section.block{padding:clamp(72px,9vw,112px) 0}
   var starts=[321,420,521,621,723,823,923,1023,1122,1222,120,219];
   var fan=document.getElementById('fan'), wrap=document.getElementById('fanWrap');
   var text=document.getElementById('signText'), hero=document.getElementById('hero');
-  var picked=7, mx=0, cards=[];
+  var picked=7, mx=0, cards=[], noClickUntil=0;
 
   signs.forEach(function(s,i){
     var b=document.createElement('button');
     b.type='button'; b.className='card'; b.setAttribute('aria-label',s[1]+', '+s[3]);
     b.innerHTML='<span class="fx burst"></span><span class="fx halo"></span><span class="fx sp sp1"></span><span class="fx sp sp2"></span><span class="fx sp sp3"></span>'+
       '<span class="card-face"><img src="img/cards/'+s[0]+'.webp" alt="'+s[5]+'" width="150" height="310"'+(Math.abs(i-picked)>3?' loading="lazy"':'')+'><span class="fx shine"></span></span>';
-    b.addEventListener('click',function(){pick(i)});
+    b.addEventListener('click',function(e){if(Date.now()<noClickUntil){e.preventDefault();return}pick(i)});
     fan.appendChild(b); cards.push(b);
   });
 
@@ -559,6 +562,7 @@ section.block{padding:clamp(72px,9vw,112px) 0}
 
   /* touch: swipe to flip through signs, fan follows the finger */
   var sx=null, sy=0, moved=false, touched=false;
+  wrap.addEventListener('contextmenu',function(e){e.preventDefault()});
   wrap.addEventListener('touchstart',function(e){var t=e.touches[0];sx=t.clientX;sy=t.clientY;moved=false;touched=true},{passive:true});
   wrap.addEventListener('touchmove',function(e){
     if(sx===null)return; var t=e.touches[0], dx=t.clientX-sx, dy=t.clientY-sy;
@@ -570,7 +574,7 @@ section.block{padding:clamp(72px,9vw,112px) 0}
   wrap.addEventListener('touchend',function(e){
     if(sx===null)return; var dx=(e.changedTouches[0].clientX-sx);
     cards.forEach(function(c){c.style.transitionDuration=''});
-    if(moved){var step=Math.max(1,Math.min(3,Math.round(Math.abs(dx)/70)));var k=picked+(dx<0?step:-step);k=(k+12)%12;mx=0;pick(k)}
+    if(moved){noClickUntil=Date.now()+450;var step=Math.max(1,Math.min(3,Math.round(Math.abs(dx)/70)));var k=picked+(dx<0?step:-step);k=(k+12)%12;mx=0;pick(k)}
     sx=null;
   });
 
