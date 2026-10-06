@@ -91,7 +91,7 @@ h1{font-family:var(--display);font-weight:800;letter-spacing:-.035em;line-height
 .updated{color:var(--dim);font-size:14px}
 
 /* footer */
-.footer{padding:64px 0 28px;border-top:1px solid var(--line);margin-top:24px}
+.footer{padding:64px 24px 28px;border-top:1px solid var(--line);margin-top:24px}
 .footer-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px;font-size:14px;padding-bottom:40px}
 .footer-cols > *{display:flex;flex-direction:column;gap:9px}
 .footer-cols .h{color:var(--dim);margin-bottom:4px}
