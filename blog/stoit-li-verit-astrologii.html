@@ -51,7 +51,7 @@
 <body>
 <div class="bar"><div class="wrap"><div class="header">
   <a href="../index.html" class="brand" aria-label="Петология — на главную"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><rect width="100" height="100" rx="18" fill="#EBD49E"/><g fill="#141030"><ellipse cx="50" cy="64" rx="16" ry="13"/><ellipse cx="29" cy="45" rx="6" ry="8"/><ellipse cx="42" cy="33" rx="6" ry="8"/><ellipse cx="58" cy="33" rx="6" ry="8"/><ellipse cx="71" cy="45" rx="6" ry="8"/></g></svg><span>Душа в&nbsp;душу</span></a>
-  <nav class="nav" aria-label="Основная навигация">
+  <nav class="nav" id="site-nav" aria-label="Основная навигация">
     <a href="../index.html#razbory">Разборы</a>
     <a href="sovmestimost-kota-i-sobaki.html">Совместимость</a>
     <a href="../index.html#ceny">Цены</a>
@@ -59,6 +59,7 @@
     <a href="../index.html#voprosy">Вопросы</a>
   </nav>
   <a href="https://t.me/SoulPetBot" class="btn-ghost">Открыть бота</a>
+  <button class="burger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="site-nav"><span></span><span></span><span></span></button>
 </div></div></div>
 <header class="top">
 <div class="wrap breadcrumbs"><a href="../index.html">Главная</a> / <a href="blog.html">Блог</a> / Стоит ли верить астрологии для животных</div>
@@ -124,5 +125,6 @@
   <img class="footer-mark" src="../img/petology-wordmark.svg" alt="" width="1248" height="255" loading="lazy">
   <div class="footer-bottom"><span>© 2026 Петология. Астрология для питомцев в Telegram.</span><span>Разборы носят развлекательный характер и не заменяют ветеринара</span></div>
 </footer>
+<script>(function(){var b=document.querySelector('.burger'),n=document.getElementById('site-nav');if(!b||!n)return;function set(o){n.classList.toggle('open',o);b.setAttribute('aria-expanded',o);b.setAttribute('aria-label',o?'Закрыть меню':'Открыть меню');document.documentElement.classList.toggle('menu-open',o)}b.addEventListener('click',function(){set(!n.classList.contains('open'))});n.addEventListener('click',function(e){if(e.target.closest('a'))set(false)});document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false)});window.matchMedia('(min-width:1081px)').addEventListener('change',function(){set(false)})})();</script>
 </body>
 </html>
